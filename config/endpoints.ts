@@ -1,5 +1,12 @@
-export const API_BASE_URL = "http://localhost:8000";
+// lib/config.ts
+const isProduction = process.env.NODE_ENV === "production";
 
+export const API_BASE_URL = isProduction
+  ? process.env.NEXT_PUBLIC_API_BASE_URL ||
+  (typeof window !== "undefined"
+    ? window.location.origin
+    : "https://backend-proposite-project.vercel.app")
+  : "http://localhost:8000";
 export const LOGIN_URL = `${API_BASE_URL}/auth`;
 
 export const USERS = `users`;
