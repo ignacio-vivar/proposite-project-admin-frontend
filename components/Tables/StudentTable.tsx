@@ -160,6 +160,7 @@ export const columns: ColumnDef<StudentWithTags>[] = [
 
 export function StudentTable({ data, onStudentUpdateAction }: customProps) {
   const [fullData, setFullData] = React.useState<StudentWithTags[]>([]);
+  const [isLoadingData, setIsLoadingData] = React.useState(true); // <-- Nuevo estado
   const [change, setChange] = React.useState(0);
   const { fetch: fetchAssigns } = useApiParamsFinish<
     StudentAssignatures,
@@ -181,25 +182,31 @@ export function StudentTable({ data, onStudentUpdateAction }: customProps) {
     }
 
     async function loadAll() {
-      const promises: Promise<StudentWithTags>[] = data.map(
-        (student) =>
-          new Promise<StudentWithTags>((resolve, reject) => {
-            fetchAssigns(student.id, (assigns: StudentAssignatures) => {
-              try {
-                const tags = (assigns?.assignatures ?? []).map((x) => x.tag);
-                resolve({
-                  ...student,
-                  materiasTags: tags,
-                });
-              } catch (err) {
-                reject(err);
-              }
-            });
-          }),
-      );
+      try {
+        const promises: Promise<StudentWithTags>[] = data.map(
+          (student) =>
+            new Promise<StudentWithTags>((resolve, reject) => {
+              fetchAssigns(student.id, (assigns: StudentAssignatures) => {
+                try {
+                  const tags = (assigns?.assignatures ?? []).map((x) => x.tag);
+                  resolve({
+                    ...student,
+                    materiasTags: tags,
+                  });
+                } catch (err) {
+                  reject(err);
+                }
+              });
+            }),
+        );
 
-      const results = await Promise.all(promises);
-      setFullData(results);
+        const results = await Promise.all(promises);
+        setFullData(results);
+      } catch (error) {
+        console.error("error de carga", error);
+      } finally {
+        setIsLoadingData(false);
+      }
     }
 
     loadAll();
@@ -327,7 +334,16 @@ export function StudentTable({ data, onStudentUpdateAction }: customProps) {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoadingData ? ( // <-- Nuevo: estado de carga
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center text-gray-500"
+                >
+                  Cargando datos...
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -353,7 +369,7 @@ export function StudentTable({ data, onStudentUpdateAction }: customProps) {
                 </TableCell>
               </TableRow>
             )}
-          </TableBody>
+          </TableBody>{" "}
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
