@@ -7,6 +7,7 @@ export const API_BASE_URL = isProduction
     ? window.location.origin
     : "https://backend-proposite-project.vercel.app")
   : "http://localhost:8000";
+
 export const LOGIN_URL = `${API_BASE_URL}/auth`;
 
 export const USERS = `users`;
