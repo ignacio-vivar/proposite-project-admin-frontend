@@ -136,7 +136,11 @@ type Props = {
 };
 export default function TasksTable({ id }: Props) {
   const requestFn = useCallback(() => getAssigmentsByAssignature(id), [id]);
-  const { data: dataAssigments, fetch: refetchAssigments } = useApi(requestFn, {
+  const {
+    data: dataAssigments,
+    fetch: refetchAssigments,
+    loading: isLoadingData,
+  } = useApi(requestFn, {
     autoFetch: true,
   });
 
@@ -396,15 +400,29 @@ export default function TasksTable({ id }: Props) {
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="hover:bg-gray-50">
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-4 py-2 border-b">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
+            {table.getRowModel().rows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  className="px-4 py-8 text-center text-gray-500"
+                >
+                  {isLoadingData ? "Cargando..." : "No hay datos disponibles"}
+                </td>
               </tr>
-            ))}
+            ) : (
+              table.getRowModel().rows.map((row) => (
+                <tr key={row.id} className="hover:bg-gray-50">
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className="px-4 py-2 border-b">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}{" "}
           </tbody>
         </table>
       </div>
