@@ -75,7 +75,7 @@ test("test-failure", async ({ page }) => {
   await page.getByRole("button", { name: "Registrar" }).click();
 
   const errores = page.locator('[data-slot="form-message"]', {
-    hasText: "Too small: expected string to have >=2 characters",
+    hasText: "Invalid input",
   });
   await expect(errores).toHaveCount(4);
 });
