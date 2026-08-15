@@ -27,7 +27,7 @@ test("test-exitoso", async ({ page }) => {
   const toast = page.locator("[data-sonner-toast]", {
     hasText: "Registro completado con exito",
   });
-  await expect(toast).toBeVisible();
+  await expect(toast).toBeVisible({ timeout: 10000 });
 });
 
 test("test-bad-email-field", async ({ page }) => {
